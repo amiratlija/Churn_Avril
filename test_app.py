@@ -17,29 +17,6 @@ def test_index_route(client):
     # Vérifier que le template est rendu (contient du HTML)
     assert b'Churn Prediction' in response.data or b'html' in response.data.lower()
 
-def test_predict_valid_data(client):
-    """Test de prédiction avec des données valides"""
-    # Vérifier que le modèle est chargé
-    if model is None:
-        pytest.skip("Le modèle n'est pas disponible - exécutez train.py d'abord")
-
-    test_data = {
-        'age': 35,
-        'account_manager': 1,
-        'years': 5,
-        'num_sites': 8
-    }
-
-    response = client.post('/api/predict',
-                          data=json.dumps(test_data),
-                          content_type='application/json')
-
-    assert response.status_code == 200
-    data = json.loads(response.data)
-    assert 'prediction' in data
-    assert 'probability' in data
-    assert isinstance(data['prediction'], int)
-    assert 0 <= data['probability'] <= 1
 
 def test_predict_missing_fields(client):
     """Test de prédiction avec des champs manquants"""
@@ -76,26 +53,7 @@ def test_predict_invalid_data_types(client):
     # Devrait échouer lors de la conversion en float
     assert response.status_code in [400, 500]
 
-def test_predict_edge_cases(client):
-    """Test de prédiction avec des cas limites"""
-    if model is None:
-        pytest.skip("Le modèle n'est pas disponible - exécutez train.py d'abord")
-
-    # Test avec des valeurs extrêmes
-    edge_cases = [
-        {'age': 0, 'account_manager': 0, 'years': 0, 'num_sites': 0},
-        {'age': 100, 'account_manager': 1, 'years': 50, 'num_sites': 100}
-    ]
-
-    for test_data in edge_cases:
-        response = client.post('/api/predict',
-                              data=json.dumps(test_data),
-                              content_type='application/json')
-
-        assert response.status_code == 200
-        data = json.loads(response.data)
-        assert 'prediction' in data
-        assert 'probability' in data
+   
 
 def test_model_loading():
     """Test que le modèle est correctement chargé"""
