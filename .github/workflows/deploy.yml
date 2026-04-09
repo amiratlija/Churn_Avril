@@ -1,0 +1,31 @@
+
+name: CI/CD for Churn Prediction
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - train.py
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      - name: Build Docker Image
+        run: |
+          docker build -t redha-test .
+
+      - name: Run Tests in Docker
+        run: |
+          docker run --rm redha-test python -m pytest 
